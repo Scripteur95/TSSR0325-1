@@ -1,0 +1,240 @@
+#!/bin/bash
+
+# =====================================
+# TOOLS Admin Pro ULTIMATE™ v3.0
+# Script complet d’administration + sécurité
+# =====================================
+
+# ========= VARIABLES GLOBALES ========
+LOG_FILE="/var/log/tools_admin.log"
+GREEN="\e[32m"
+RED="\e[31m"
+YELLOW="\e[33m"
+CYAN="\e[36m"
+RESET="\e[0m"
+BOLD="\e[1m"
+
+# ========= FONCTIONS UTILES =========
+
+log_action() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+print_success() {
+    echo -e "${GREEN}[✔] $1${RESET}"
+}
+
+print_error() {
+    echo -e "${RED}[✘] $1${RESET}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[!] $1${RESET}"
+}
+
+print_info() {
+    echo -e "${CYAN}[*] $1${RESET}"
+}
+
+pause() {
+    read -p "Appuyez sur Entrée pour continuer..."
+}
+
+# ========= INTERFACE ==========
+
+show_epic_banner() {
+    clear
+    echo -e "${BOLD}${CYAN}"
+    echo "╔═══════════════════════════════════════╗"
+    echo "║     TOOLS Admin Pro ULTIMATE™ v3.0    ║"
+    echo "║   🔒 Sécurité | 📊 Services | 🛠️  Admin   ║"
+    echo "╚═══════════════════════════════════════╝"
+    echo -e "${RESET}"
+}
+
+show_main_menu() {
+    echo -e "${BOLD}${YELLOW}=== MENU PRINCIPAL ===${RESET}"
+    echo "1) 🔒 Administration utilisateurs"
+    echo "2) 🧰 Installation de services"
+    echo "3) 🔐 Configuration SSH"
+    echo "4) 🛡️  Sécurité (Fail2ban, iptables, scans)"
+    echo "5) 🩺 Rapport santé système"
+    echo "6) 📜 Voir les logs"
+    echo "0) 🚪 Quitter"
+    echo -n "👉 Choisissez une option : "
+}
+
+# ========= SÉCURITÉ AVANCÉE =========
+
+install_fail2ban() {
+    apt install -y fail2ban
+    cat > /etc/fail2ban/jail.local <<EOF
+[sshd]
+enabled = true
+port = ssh
+logpath = %(sshd_log)s
+backend = systemd
+maxretry = 5
+bantime = 3600
+EOF
+    systemctl enable fail2ban && systemctl restart fail2ban
+    print_success "Fail2ban activé pour SSH"
+    log_action "Fail2ban activé"
+}
+
+configure_iptables() {
+    apt install -y iptables-persistent
+    iptables -F
+    iptables -P INPUT DROP
+    iptables -P FORWARD DROP
+    iptables -P OUTPUT ACCEPT
+    iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+    iptables -A INPUT -i lo -j ACCEPT
+    netfilter-persistent save
+    print_success "Pare-feu iptables configuré (SSH uniquement autorisé)"
+    log_action "iptables configuré"
+}
+
+scan_trojans_backdoors() {
+    apt install -y rkhunter chkrootkit
+    rkhunter --update && rkhunter --checkall --skip-keypress
+    chkrootkit
+    print_success "Scan rootkit et trojan terminé"
+    log_action "Scan anti-rootkit effectué"
+}
+
+rapport_sante() {
+    echo "==== État général du système ====" > /tmp/sys_report.txt
+    echo -e "\n--- UPTIME ---" >> /tmp/sys_report.txt
+    uptime >> /tmp/sys_report.txt
+    echo -e "\n--- DISQUE ---" >> /tmp/sys_report.txt
+    df -h >> /tmp/sys_report.txt
+    echo -e "\n--- MÉMOIRE ---" >> /tmp/sys_report.txt
+    free -h >> /tmp/sys_report.txt
+    echo -e "\n--- CPU ---" >> /tmp/sys_report.txt
+    top -b -n1 | head -n 10 >> /tmp/sys_report.txt
+    echo -e "\n--- SERVICES CRITIQUES ---" >> /tmp/sys_report.txt
+    systemctl is-active ssh apache2 mariadb fail2ban >> /tmp/sys_report.txt
+    echo -e "\n--- CONNEXIONS RÉSEAU ---" >> /tmp/sys_report.txt
+    ss -tunap >> /tmp/sys_report.txt
+    less /tmp/sys_report.txt
+    log_action "Rapport de santé généré"
+}
+
+# ========= MENUS =========
+
+menu_securite() {
+    while true; do
+        echo -e "${CYAN}--- Menu Sécurité ---${RESET}"
+        echo "1) Installer et configurer Fail2ban"
+        echo "2) Configurer iptables"
+        echo "3) Scanner les trojans / backdoors"
+        echo "0) Retour"
+        echo -n "👉 Choix : "
+        read choice
+        case $choice in
+            1) install_fail2ban ;;
+            2) configure_iptables ;;
+            3) scan_trojans_backdoors ;;
+            0) break ;;
+            *) print_warning "Option invalide" ;;
+        esac
+    done
+}
+
+# ========= UTILISATEURS & SERVICES =========
+
+create_user_premium() {
+    read -p "Nom utilisateur : " username
+    id "$username" &>/dev/null && { print_error "Utilisateur existe" ; return; }
+    read -s -p "Mot de passe : " password; echo
+    useradd -m -s /bin/bash "$username"
+    echo "$username:$password" | chpasswd
+    print_success "Utilisateur $username créé"
+    log_action "Utilisateur ajouté : $username"
+}
+
+configure_ssh() {
+    apt install -y openssh-server
+    sed -i 's/#Port 22/Port 22/' /etc/ssh/sshd_config
+    sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+    systemctl restart ssh
+    print_success "SSH configuré et sécurisé"
+    log_action "SSH sécurisé"
+}
+
+install_zabbix() {
+    apt install -y zabbix-server-mysql zabbix-frontend-php zabbix-agent
+    print_success "Zabbix installé"
+    log_action "Zabbix installé"
+}
+
+install_nagios() {
+    apt install -y autoconf gcc make apache2 php libgd-dev
+    print_success "Nagios installé (à configurer)"
+    log_action "Nagios installé"
+}
+
+install_xivo() {
+    echo "deb http://mirror.xivo.solutions/debian xivo-buster main" > /etc/apt/sources.list.d/xivo.list
+    curl http://mirror.xivo.solutions/xivo_current.key | apt-key add -
+    apt update && apt install -y xivo-install
+    print_success "XiVO installé"
+    log_action "XiVO installé"
+}
+
+install_glpi() {
+    apt install -y apache2 mariadb-server php php-mysql php-curl php-mbstring php-xml php-ldap unzip wget
+    print_success "GLPI installé (interface web active)"
+    log_action "GLPI installé"
+}
+
+admin_menu() {
+    echo "1) Ajouter utilisateur"
+    echo "0) Retour"
+    read -p "👉 " c
+    [[ "$c" == "1" ]] && create_user_premium
+}
+
+install_menu() {
+    while true; do
+        echo -e "${CYAN}--- INSTALLATION DE SERVICES ---${RESET}"
+        echo "1) GLPI"
+        echo "2) Zabbix"
+        echo "3) Nagios"
+        echo "4) XiVO"
+        echo "0) Retour"
+        read -p "👉 " c
+        case $c in
+            1) install_glpi ;;
+            2) install_zabbix ;;
+            3) install_nagios ;;
+            4) install_xivo ;;
+            0) break ;;
+            *) echo "⛔ Mauvais choix" ;;
+        esac
+    done
+}
+
+# ========= MAIN =========
+
+main_menu() {
+    while true; do
+        show_epic_banner
+        show_main_menu
+        read choix
+        case $choix in
+            1) admin_menu ;;
+            2) install_menu ;;
+            3) configure_ssh ;;
+            4) menu_securite ;;
+            5) rapport_sante ;;
+            6) less "$LOG_FILE" ;;
+            0) print_info "À bientôt, Admin Pro 👋" ; exit 0 ;;
+            *) print_warning "Option invalide." ;;
+        esac
+    done
+}
+
+main_menu
