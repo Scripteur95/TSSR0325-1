@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Script écrit par Babak
+# Script écrit par Babak
 
 # Couleurs terminal (facultatif si utilisé sans GUI)
 rouge='\e[31m'
@@ -20,15 +20,15 @@ installer() {
 
 # Sous-menu Docker stylé
 sous_menu_docker() {
-    CHOIX=$(whiptail --title "🚀 Déploiement Docker Centralisé" ->
-    "1" "📊  Portainer     - Interface web Docker" \
-    "2" "🖥️   GLPI         - Gestion de parc informatique" \
-    "3" "📈  Zabbix        - Supervision réseau avancée" \
-    "4" "📡  Nagios        - Monitoring et alertes système" \
-    "5" "📞  XiVO          - Téléphonie IP (VOIP)" \
-    "6" "🛡️  Sécurité      - Fail2ban, iptables, rkhunter, logwatc>
-    "7" "🧱  SambaAD       - Active Directory Linux" \
-    "8" "↩️  Retour" 3>&1 1>&2 2>&3)
+    CHOIX=$(whiptail --title "🚀 Déploiement Docker Centralisé" --menu "Sélectionnez un logiciel à installer :" 20 60 10 \
+        "1" "📊  Portainer     - Interface web Docker" \
+        "2" "🖥️  GLPI         - Gestion de parc informatique" \
+        "3" "📈  Zabbix        - Supervision réseau avancée" \
+        "4" "📡  Nagios        - Monitoring et alertes système" \
+        "5" "📞  XiVO          - Téléphonie IP (VOIP)" \
+        "6" "🛡️  Sécurité      - Fail2ban, iptables, rkhunter, logwatch" \
+        "7" "🧱  SambaAD       - Active Directory Linux" \
+        "8" "↩️  Retour" 3>&1 1>&2 2>&3)
 
     case $CHOIX in
         1) installer "Portainer (Docker)" ;;
@@ -36,7 +36,7 @@ sous_menu_docker() {
         3) installer "Zabbix (Supervision)" ;;
         4) installer "Nagios (Supervision)" ;;
         5) installer "XiVO (VOIP)" ;;
-        6) installer "Outils Sécurité : fail2ban, iptables, rkhun>
+        6) installer "Outils Sécurité : Fail2ban, iptables, rkhunter, logwatch" ;;
         7) installer "SambaAD (Active Directory)" ;;
         8) return ;;
         *) echo -e "${rouge}❌ Option invalide${reset}" ;;
@@ -45,13 +45,15 @@ sous_menu_docker() {
 
 # Menu principal
 while true; do
-    CHOIX_PRINCIPAL=$(whiptail --title "🧭 Menu Principal Adminis>
-    "1" "🛠️  Installation de logiciels via Docker" \
-    "2" "🚪 Quitter" 3>&1 1>&2 2>&3)
+    CHOIX_PRINCIPAL=$(whiptail --title "🧭 Menu Principal Administration" --menu "Que souhaitez-vous faire ?" 15 60 5 \
+        "1" "🛠️  Installation de logiciels via Docker" \
+        "2" "🚪 Quitter" 3>&1 1>&2 2>&3)
 
     case $CHOIX_PRINCIPAL in
         1) sous_menu_docker ;;
-        2) clear; echo -e "${jaune}👋 Merci d'avoir utilisé ce me>
+        2) clear
+           echo -e "${jaune}👋 Merci d'avoir utilisé ce menu, à bientôt.${reset}"
+           exit 0 ;;
         *) echo -e "${rouge}❌ Option invalide${reset}" ;;
     esac
 done
