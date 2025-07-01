@@ -1,0 +1,85 @@
+#!/bin/bash
+6)
+# code écrit par Yann , Babak , Samuel J
+
+# Fonction pour afficher le menu
+show_menu() {
+    clear
+    echo "========================================"
+    echo "        MENU D'INSTALLATION"
+    echo "========================================"
+    echo ""
+    echo "1. Docker - Plateforme de conteneurisation"
+    echo "2. GLPI - Gestion d'inventaire"
+    echo "3. Zabbix - Monitoring réseau"
+    echo "4. Nagios - Supervision"
+    echo "5. XiVO - Téléphonie IP"
+    echo "6. Quitter"
+    echo ""
+    echo -n "Choisissez une option (1-6): "
+}
+
+# Boucle principale
+while true; do
+    show_menu
+    read choix
+
+    case "$choix" in
+        1)
+            echo "Installation de Docker..."
+            if [[ -f "./install_docker.sh" ]]; then
+                ./install_docker.sh
+                echo "Installation terminée !"
+            else
+                echo "Erreur: Script install_docker.sh non trouvé"
+            fi
+            ;;
+        2)
+            echo "Installation de GLPI..."
+            if [[ -f "./install_glpi.sh" ]]; then
+                ./install_glpi.sh
+                echo "Installation terminée !"
+            else
+                echo "Erreur: Script install_glpi.sh non trouvé"
+            fi
+            ;;
+        3)
+            echo "Installation de Zabbix..."
+            if [[ -f "./install_zabbix.sh" ]]; then
+                ./install_zabbix.sh
+                echo "Installation terminée !"
+            else
+                echo "Erreur: Script install_zabbix.sh non trouvé"
+            fi
+            ;;
+        4)
+            echo "Installation de Nagios..."
+            if [[ -f "./install_nagios.sh" ]]; then
+                ./install_nagios.sh
+                echo "Installation terminée !"
+            else
+                echo "Erreur: Script install_nagios.sh non trouvé"
+            fi
+            ;;
+        5)
+            echo "Installation de XiVO..."
+            if [[ -f "./install_xivo.sh" ]]; then
+                ./install_xivo.sh
+                echo "Installation terminée !"
+            else
+                echo "Erreur: Script install_xivo.sh non trouvé"
+            fi
+            ;;
+
+            echo "Au revoir !"
+            exit 0
+            ;;
+        *)
+            echo "Choix invalide. Veuillez choisir entre 1 et 6."
+            ;;
+    esac
+
+    echo ""
+    echo "Appuyez sur Entrée pour continuer..."
+    read
+done
