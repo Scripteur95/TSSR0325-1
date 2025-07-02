@@ -415,12 +415,12 @@ main_menu() {
         local result=0
         case "$choice" in
             1)
-                chmod +x $HOME/TSSR0325/AdminSys/administration/menu_administration.sh
+                chmod +x administration/menu_administration.sh
                 ./administration/menu_administration.sh
                 result=$?
                 ;;
             2)
-                chmod +x $HOME/TSSR0325/AdminSys/logiciels/menu_logiciels.sh
+                chmod +x logiciels/menu_logiciels.sh
                 ./logiciels/menu_logiciels.sh
                 result=$?
                 ;;
@@ -452,7 +452,7 @@ main_menu() {
 # Fonction principale
 # =============================================================================
 main() {
-    find $HOME/TSSR0325/AdminSys -type f -name "*.sh" -exec chmod +x {} \;
+    find -type f -name "*.sh" -exec chmod +x {} \;
     check_whiptail || exit 1
     check_and_prepare_sudo_access || exit 1
     display_header
