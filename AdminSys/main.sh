@@ -3,7 +3,7 @@
 # Inclusion de la bibliothèque de fonctions partagées.
 # Le '.' est un raccourci pour la commande 'source'.
 # Le script s'arrête si la bibliothèque n'est pas trouvée.
-source $HOME/TSSR0325/AdminSys/librairies/lib.sh || { echo "Erreur: Le fichier lib.sh est introuvable."; exit 1; }
+source librairies/lib.sh || { echo "Erreur: Le fichier lib.sh est introuvable."; exit 1; }
 
 # Fonction pour vérifier et préparer l'accès sudo de l'utilisateur.
 # MODIFICATION : Cette fonction est adaptée pour permettre l'exécution par root et les utilisateurs sudoers.
