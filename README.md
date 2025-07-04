@@ -21,8 +21,8 @@ Ce qu'il est requis pour commencer avec votre projet...
 
 ```
 sudo apt install -y git
-git clone https://github.com/edo-ops/TSSR0325
-cd TSSR0325
+git clone https://github.com/edo-ops/TSSR0325-linux
+cd TSSR0325-linux
 sudo chmod +x *
 ```
 
